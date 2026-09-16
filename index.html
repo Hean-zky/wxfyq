@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="author" content="Lirael">
+<meta name="description" content="上传英文文献 PDF，一键生成「中英对照 + 大白话解读」的离线 HTML 笔记">
+<title>文献翻译器 · 把英文论文变成看得懂的中文笔记</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234f46e5'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='white' font-family='sans-serif'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f5f7fb; --card:#fff; --ink:#111827; --ink2:#374151; --muted:#6b7280;
+  --line:#e5e7eb; --brand:#4f46e5; --brand-2:#0ea5e9; --brand-soft:#eef2ff;
+  --ok:#059669; --warn:#d97706; --err:#dc2626; --radius:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Source Han Sans SC",system-ui,-apple-system,sans-serif;
+  font-size:15px; line-height:1.75; -webkit-font-smoothing:antialiased;
+  padding-bottom:60px;
+}
+a{color:var(--brand)}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+
+/* ---------- 头部 ---------- */
+header{
+  background:linear-gradient(135deg,#4f46e5 0%,#6366f1 45%,#0ea5e9 100%);
+  color:#fff; padding:34px 0 30px; margin-bottom:22px;
+  box-shadow:0 6px 24px rgba(79,70,229,.18);
+}
+header .wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{
+  width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.18);
+  display:grid;place-items:center;font-size:24px;flex:none;
+  border:1px solid rgba(255,255,255,.25);
+}
+header h1{font-size:23px;margin:0;line-height:1.3;font-weight:650;letter-spacing:.3px;cursor:default}
+header p{margin:4px 0 0;font-size:13.5px;opacity:.9}
+
+/* ---------- 卡片 ---------- */
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  padding:20px; margin-bottom:16px; box-shadow:0 1px 2px rgba(16,24,40,.04);
+}
+.card h2{
+  font-size:16px;margin:0 0 14px;display:flex;align-items:center;gap:9px;font-weight:650;
+}
+.step{
+  width:22px;height:22px;border-radius:50%;background:var(--brand-soft);color:var(--brand);
+  font-size:12.5px;display:grid;place-items:center;flex:none;font-weight:700;
+}
+.hint{color:var(--muted);font-size:13px;margin:8px 0 0}
+
+/* ---------- 上传区 ---------- */
+#drop{
+  border:2px dashed #cbd5e1;border-radius:14px;background:#fafbff;
+  padding:30px 18px;text-align:center;transition:.18s;cursor:pointer;
+}
+#drop:hover,#drop.over{border-color:var(--brand);background:var(--brand-soft)}
+#drop .ico{font-size:36px;line-height:1;margin-bottom:8px}
+#drop b{display:block;font-size:15px;margin-bottom:4px}
+#drop span{color:var(--muted);font-size:13px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  border:0;border-radius:11px;padding:11px 20px;font-size:15px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:.15s;line-height:1.2;
+}
+.btn:active{transform:translateY(1px)}
+.btn-main{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.28)}
+.btn-main:hover{background:#4338ca}
+.btn-run{
+  background:linear-gradient(135deg,#4f46e5,#0ea5e9);color:#fff;font-size:16px;
+  padding:14px 26px;box-shadow:0 3px 12px rgba(79,70,229,.3);
+}
+.btn-run:hover{filter:brightness(1.06)}
+.btn-ghost{background:#fff;color:var(--ink2);border:1px solid var(--line)}
+.btn-ghost:hover{background:#f9fafb}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;filter:none}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* ---------- 文件信息 ---------- */
+#fileBox{
+  display:none;margin-top:14px;padding:13px 15px;border-radius:12px;
+  background:#f0fdf4;border:1px solid #bbf7d0;
+}
+#fileBox .name{font-weight:600;word-break:break-all;font-size:14.5px}
+#fileBox .stat{color:var(--muted);font-size:12.5px;margin-top:3px}
+#fileBox .x{
+  float:right;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;
+  padding:0 4px;background:none;border:0;
+}
+#fileBox .x:hover{color:var(--err)}
+
+/* ---------- 表单 ---------- */
+label.f{display:block;font-size:13px;color:var(--ink2);margin:0 0 5px;font-weight:600}
+input[type=text],input[type=password],select,textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+  font-size:14px;font-family:inherit;background:#fff;color:var(--ink);
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--brand-soft);border-color:var(--brand)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+details.set{border:1px solid var(--line);border-radius:12px;padding:0;background:#fff}
+details.set>summary{
+  padding:13px 16px;cursor:pointer;font-weight:600;font-size:14.5px;list-style:none;
+  display:flex;align-items:center;justify-content:space-between;
+}
+details.set>summary::-webkit-details-marker{display:none}
+details.set>summary::after{content:"▾";color:var(--muted);font-size:12px}
+details.set[open]>summary::after{content:"▴"}
+details.set[open]>summary{border-bottom:1px solid var(--line)}
+details.set .body{padding:16px}
+.kv{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}
+.kv:last-child{margin-bottom:0}
+
+/* ---------- 进度 ---------- */
+#run{display:none}
+.bar{height:9px;background:#eef2f7;border-radius:99px;overflow:hidden;margin:12px 0 8px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4f46e5,#0ea5e9);transition:.35s;border-radius:99px}
+#log{
+  max-height:190px;overflow:auto;background:#0f172a;color:#cbd5e1;border-radius:11px;
+  padding:11px 13px;font-size:12.5px;line-height:1.7;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+#log div{white-space:pre-wrap;word-break:break-word}
+#log .ok{color:#6ee7b7}#log .warn{color:#fcd34d}#log .err{color:#fca5a5}
+
+/* ---------- 结果 ---------- */
+#result{display:none}
+#result .row{margin-top:14px}
+iframe#preview{
+  width:100%;height:440px;border:1px solid var(--line);border-radius:12px;background:#fff;
+}
+
+/* ---------- 页脚 / 说明 ---------- */
+footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:26px;line-height:2}
+.tiny{
+  margin-top:10px;font-size:11px;color:#9ca3af;letter-spacing:.4px;
+  opacity:.35;transition:opacity .6s;user-select:none;
+}
+.tiny:hover{opacity:1}
+.tiny b{font-weight:600}
+.faq summary{cursor:pointer;padding:7px 0;font-weight:600;font-size:14px}
+.faq p{color:var(--ink2);font-size:13.5px;margin:6px 0 12px}
+.badge{
+  display:inline-block;background:var(--brand-soft);color:var(--brand);
+  border-radius:99px;padding:2px 10px;font-size:12px;font-weight:600;margin-left:6px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="logo">📄</div>
+    <div>
+      <h1 id="title">文献翻译器</h1>
+      <p>上传一篇英文文献 PDF → 得到一份「英文原文 · 中文翻译 · 大白话解读」的离线笔记</p>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ① 上传 -->
+  <div class="card">
+    <h2><span class="step">1</span>选择文献 PDF</h2>
+    <div id="drop">
+      <div class="ico">📥</div>
+      <b>点这里选择文件，或把 PDF 拖进来</b>
+      <span>电脑、手机上下载的文献都行 · 扫描件（图片型 PDF）暂不支持</span>
+      <div style="margin-top:14px">
+        <button class="btn btn-main" id="btnPick">📄 上传原文 PDF</button>
+      </div>
+    </div>
+    <input type="file" id="file" accept="application/pdf,.pdf" hidden>
+    <div id="fileBox">
+      <button class="x" id="btnClear" title="移除">×</button>
+      <div class="name" id="fName"></div>
+      <div class="stat" id="fStat"></div>
+    </div>
+    <p class="hint">提示：手机上点「上传」后可以选择「浏览文件 / 最近下载」，直接选刚下的论文。</p>
+  </div>
+
+  <!-- ② 设置 -->
+  <div class="card">
+    <h2><span class="step">2</span>翻译设置<span class="badge">只存在你自己的浏览器里</span></h2>
+    <details class="set" open>
+      <summary>接口与模型</summary>
+      <div class="body">
+        <div class="grid">
+          <div>
+            <label class="f">服务商</label>
+            <select id="provider">
+              <option value="deepseek">DeepSeek（推荐，便宜好用）</option>
+              <option value="kimi">Kimi / Moonshot</option>
+              <option value="qwen">通义千问（阿里）</option>
+              <option value="glm">智谱 GLM</option>
+              <option value="openai">OpenAI</option>
+              <option value="custom">自定义（OpenAI 兼容）</option>
+            </select>
+          </div>
+          <div>
+            <label class="f">模型名</label>
+            <input type="text" id="model" spellcheck="false" placeholder="模型名">
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <label class="f">API Key</label>
+          <input type="password" id="key" placeholder="sk-...（填一次，之后自动记住）" autocomplete="off">
+        </div>
+        <div style="margin-top:12px">
+          <label class="f">接口地址（Base URL）</label>
+          <input type="text" id="base" spellcheck="false" placeholder="https://api.deepseek.com/v1">
+        </div>
+        <p class="hint">没有任何 key？点上面的服务商下拉，去对应官网注册一般都有免费额度。翻译一篇 10 页论文大约几毛钱。</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ③ 开跑 -->
+  <div class="card">
+    <h2><span class="step">3</span>开始翻译</h2>
+    <div class="row">
+      <button class="btn btn-run" id="btnRun" disabled>🚀 启动翻译</button>
+      <button class="btn btn-ghost" id="btnStop" disabled>停止</button>
+    </div>
+    <div id="run">
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="hint" id="barTxt" style="margin:0 0 8px">准备中…</div>
+      <div id="log"></div>
+    </div>
+    <div id="result">
+      <div class="row">
+        <button class="btn btn-main" id="btnDown">⬇️ 下载 HTML 笔记</button>
+        <button class="btn btn-ghost" id="btnReset">翻译下一篇</button>
+      </div>
+      <div style="margin-top:14px">
+        <label class="f">预览</label>
+        <iframe id="preview" title="结果预览"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- 说明 -->
+  <div class="card faq">
+    <h2><span class="step">?</span>常见问题</h2>
+    <details><summary>翻译一篇要多久？</summary>
+      <p>一般 1–3 分钟。论文会切成小段一段段翻，页面上有实时进度，中途关掉浏览器才会中断。</p></details>
+    <details><summary>我的 API Key 安全吗？</summary>
+      <p>Key 只保存在你自己浏览器的 localStorage 里，直接发给你选的那家服务商，不经过任何中间服务器。不放心可以翻完去浏览器设置里清掉网站数据。</p></details>
+    <details><summary>为什么提示「接口连不上」？</summary>
+      <p>多半是那家接口不允许浏览器直接调用（CORS）。换 DeepSeek 或智谱基本都能用；也可以把 Base URL 改成自己的代理地址。</p></details>
+    <details><summary>扫描版 PDF（图片）能翻吗？</summary>
+      <p>不能。这个页面只提取 PDF 里的文字层，需要原文是可选中文字的电子版。扫描件请先用 OCR 工具转一遍。</p></details>
+    <details><summary>生成的文件是什么？</summary>
+      <p>一个单独的 HTML 文件，双击就能打开，不用联网。里面有「隐藏英文」按钮，还有每一段的💡大白话解释。</p></details>
+  </div>
+
+  <footer>
+    纯前端运行 · 文件不上传服务器 · 结果只保存在你自己电脑上
+    <div class="tiny">crafted by <b>Lirael</b> · MMXXVI</div>
+  </footer>
+</div>
+
+<!-- 彩蛋：连点标题 5 次 -->
+<div id="egg" style="position:fixed;inset:0;background:rgba(15,23,42,.86);z-index:99;
+     align-items:center;justify-content:center;color:#fff;font-size:26px;letter-spacing:3px;display:none">
+  by Lirael ✦
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

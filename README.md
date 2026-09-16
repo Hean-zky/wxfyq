@@ -8,6 +8,10 @@
 
 <br>
 
+<p><b>👉 <a href="https://hean-zky.github.io/wxfyq/">打开网页版：上传 PDF → 启动翻译 → 下载笔记</a></b></p>
+
+<br>
+
 ![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-97CA00?style=flat-square)
 ![Actions](https://img.shields.io/badge/GitHub%20Actions-自动翻译-2088FF?style=flat-square&logo=githubactions&logoColor=white)
@@ -33,13 +37,34 @@
 
 ---
 
-## 三种用法，挑一个
+## 四种用法，挑一个
 
 | 方式 | 难度 | 适合谁 |
 |:---|:---|:---|
+| **0. 网页版**（推荐） | ⭐ | 马上用，不用配置任何东西 |
 | **A. 网页上传**（本仓库） | ⭐ | 不想装东西、偶尔用一次 |
 | **B. 本地命令行** | ⭐⭐⭐ | 论文多、想批量处理 |
 | **C. WorkBuddy 技能** | ⭐ | 用 WorkBuddy 的话，拖进去说一句就行 |
+
+---
+
+## 0. 网页版（推荐，30 秒上手）
+
+打开 **<https://hean-zky.github.io/wxfyq/>**，然后：
+
+1. 点 **📄 上传原文 PDF**（电脑、手机上下载的都行，也可以直接把文件拖进去）
+2. 填一次你的大模型 API Key（只存在你自己浏览器里，下次自动带出）
+3. 点 **🚀 启动翻译**，进度条走完
+4. 点 **⬇️ 下载 HTML 笔记** —— 一个文件，双击就能看，不用联网
+
+| 项目 | 说明 |
+|:---|:---|
+| 支持的服务商 | DeepSeek（默认）、Kimi、通义千问、智谱、OpenAI，以及任何 OpenAI 兼容接口 |
+| 一篇 10 页论文 | 大约 1–3 分钟，几毛钱 |
+| 你的文件去哪了 | 哪也没去，全在你自己电脑的浏览器里 |
+| 生成的文件里有什么 | 英文原文 + 中文翻译 + 💡大白话解读，还有「一键隐藏英文」按钮 |
+
+> 扫描件（图片型 PDF）不行，得先 OCR。
 
 ---
 
