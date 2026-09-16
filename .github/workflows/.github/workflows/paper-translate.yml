@@ -1,0 +1,55 @@
+name: 论文自动翻译
+
+# 触发方式：
+#   1) 往 papers/ 目录上传（或 push）新 PDF 时自动跑
+#   2) 也可以在 Actions 页面手动点 "Run workflow"
+on:
+  push:
+    paths:
+      - 'papers/**.pdf'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取仓库
+        uses: actions/checkout@v4
+
+      - name: 准备 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 翻译 papers/ 下的所有新 PDF
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          MODEL: ${{ secrets.MODEL || 'gpt-4o-mini' }}
+        run: |
+          mkdir -p output
+          for f in papers/*.pdf; do
+            [ -e "$f" ] || { echo "papers/ 里没有 PDF"; exit 0; }
+            name=$(basename "$f" .pdf)
+            if [ -f "output/${name}_中英对照解读.html" ]; then
+              echo "已存在，跳过：$name"
+              continue
+            fi
+            echo "处理：$name"
+            python paper2bilingual.py "$f" --out "output/${name}_中英对照解读.html"
+          done
+
+      - name: 把结果提交回仓库
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/
+          git diff --quiet --cached && echo "没有新文件" && exit 0
+          git commit -m "自动生成文献解读"
+          git push
