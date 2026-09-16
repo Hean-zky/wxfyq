@@ -220,42 +220,53 @@
   }
 
   var OUT_CSS = [
+    /* 夜间 · 黑绿 */
     ':root{--bg:#070c0a;--card:#0c1512;--ink:#e8fff6;--ink2:#b6d8cb;--muted:#7d9c92;',
     '--line:rgba(0,255,157,.16);--line2:rgba(0,255,157,.32);',
-    '--en-bg:rgba(255,255,255,.035);--en-ink:#9fc9ba;',
-    '--tip-bg:rgba(0,255,157,.07);--tip-line:#00ff9d;--tip-ink:#b8ffe4;--hd:#00ff9d}',
+    '--en-bg:rgba(255,255,255,.035);--en-ink:#9fc9ba;--en-line:rgba(0,255,157,.35);',
+    '--tip-bg:rgba(0,255,157,.07);--tip-line:#00ff9d;--tip-ink:#b8ffe4;',
+    '--hd:#00ff9d;--hd2:#8fffd0;--chip:rgba(0,255,157,.08);',
+    '--btn-bg:rgba(0,255,157,.10);--btn-ink:#00ff9d;',
+    '--grid:rgba(0,255,157,.04);--tiny:#3f6a5d;--scroll:rgba(0,255,157,.25);color-scheme:dark}',
+    /* 日间 · 清爽 */
+    'html[data-theme=light]{--bg:#f6f7f9;--card:#ffffff;--ink:#1f2937;--ink2:#4b5563;--muted:#6b7280;',
+    '--line:#e5e7eb;--line2:#cbd5e1;--en-bg:#f3f4f6;--en-ink:#4b5563;--en-line:#cbd5e1;',
+    '--tip-bg:#fffbeb;--tip-line:#f59e0b;--tip-ink:#78350f;',
+    '--hd:#0f766e;--hd2:#0f766e;--chip:#f1f5f9;--btn-bg:#ffffff;--btn-ink:#0f766e;',
+    '--grid:rgba(15,118,110,.05);--tiny:#9ca3af;--scroll:#cbd5e1;color-scheme:light}',
     '*{box-sizing:border-box}',
     'html,body{margin:0}',
-    'body{position:relative;background:var(--bg);color:var(--ink);',
+    'body{position:relative;background:var(--bg);color:var(--ink);transition:background .25s,color .25s;',
     'font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;font-size:15px;line-height:1.85}',
-    'body::before{content:"";position:fixed;inset:0;z-index:-1;',
-    'background-image:linear-gradient(rgba(0,255,157,.04) 1px,transparent 1px),',
-    'linear-gradient(90deg,rgba(0,255,157,.04) 1px,transparent 1px);background-size:46px 46px;',
+    'body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;',
+    'background-image:linear-gradient(var(--grid) 1px,transparent 1px),',
+    'linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:46px 46px;',
     '-webkit-mask-image:radial-gradient(110% 70% at 50% 0%,#000 20%,transparent 75%);',
     'mask-image:radial-gradient(110% 70% at 50% 0%,#000 20%,transparent 75%)}',
     '.wrap{max-width:1100px;margin:0 auto;padding:26px 18px 70px}',
     '.card{background:var(--card);border:1px solid var(--line);border-radius:14px;',
-    'padding:24px 26px;margin-bottom:20px;box-shadow:0 1px 2px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.03)}',
-    'h1{font-size:25px;margin:0 0 6px;color:#eafff7}',
+    'padding:24px 26px;margin-bottom:20px;box-shadow:0 1px 2px rgba(0,0,0,.14)}',
+    'h1{font-size:25px;margin:0 0 6px;color:var(--ink)}',
     'h2{font-size:19px;margin:0 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line2);color:var(--hd)}',
-    'h3{font-size:16.5px;margin:24px 0 8px;color:#8fffd0}',
-    '.sub{color:var(--muted);font-size:14px}.meta{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}',
-    '.chip{background:rgba(0,255,157,.08);border:1px solid var(--line2);color:#8fffd0;',
+    'h3{font-size:16.5px;margin:24px 0 8px;color:var(--hd2)}',
+    '.sub{color:var(--muted);font-size:14px}',
+    '.meta{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;align-items:center}',
+    '.chip{background:var(--chip);border:1px solid var(--line2);color:var(--hd2);',
     'border-radius:999px;padding:3px 12px;font-size:12.5px}',
-    '.btn{border:1px solid var(--line2);background:rgba(0,255,157,.08);color:var(--hd);',
+    '.btn{border:1px solid var(--line2);background:var(--btn-bg);color:var(--btn-ink);',
     'border-radius:10px;padding:7px 14px;font-size:13.5px;cursor:pointer;font-family:inherit}',
-    '.btn:hover{background:rgba(0,255,157,.16)}',
-    '.pair{margin:0 0 18px;padding-bottom:16px;border-bottom:1px dashed rgba(0,255,157,.14)}',
-    '.en{background:var(--en-bg);color:var(--en-ink);border-left:3px solid rgba(0,255,157,.35);',
+    '.btn:hover{filter:brightness(1.12)}',
+    '.pair{margin:0 0 18px;padding-bottom:16px;border-bottom:1px dashed var(--line)}',
+    '.en{background:var(--en-bg);color:var(--en-ink);border-left:3px solid var(--en-line);',
     'border-radius:0 8px 8px 0;padding:10px 14px;font-size:14px;margin-bottom:8px;white-space:pre-wrap}',
     '.zh{padding:2px 2px 6px;font-size:15.5px}',
     '.tip{background:var(--tip-bg);border-left:3px solid var(--tip-line);color:var(--tip-ink);',
     'border-radius:0 8px 8px 0;padding:10px 14px;font-size:14.5px;margin-top:6px;white-space:pre-wrap}',
     'body.hide-en .en{display:none}',
     'footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:24px}',
-    '.tiny{margin-top:8px;font-size:11px;color:#3f6a5d;opacity:.35;transition:opacity .6s}',
+    '.tiny{margin-top:8px;font-size:11px;color:var(--tiny);opacity:.35;transition:opacity .6s}',
     '.tiny:hover{opacity:1;color:var(--hd)}',
-    '::-webkit-scrollbar{width:9px}::-webkit-scrollbar-thumb{background:rgba(0,255,157,.25);border-radius:9px}'
+    '::-webkit-scrollbar{width:9px}::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:9px}'
   ].join('');
 
   function buildOut() {
@@ -272,7 +283,7 @@
     var now = new Date();
     var stamp = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
       ('0' + now.getDate()).slice(-2);
-    return '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">' +
+    return '<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="utf-8">' +
       '<meta name="viewport" content="width=device-width,initial-scale=1">' +
       '<meta name="theme-color" content="#070c0a">' +
       '<meta name="author" content="Lirael">' +
@@ -286,12 +297,21 @@
       '<span class="chip">模型 ' + esc($('#model').value.trim()) + '</span>' +
       '<span class="chip">共 ' + state.out.length + ' 段</span>' +
       '</div>' +
-      '<button class="btn" onclick="document.body.classList.toggle(\'hide-en\')">👁 显示 / 隐藏英文原文</button>' +
+      '<button class="btn" onclick="document.body.classList.toggle(\'hide-en\')">👁 显示 / 隐藏英文原文</button> ' +
+      '<button class="btn" id="thBtn" onclick="__swapTheme()">🌙 夜间</button>' +
       '</div>' +
       '<div class="card"><h2>正文</h2>' + body + '</div>' +
       '<footer>本文件由「文献翻译器」生成 · 可离线打开' +
       '<div class="tiny">crafted by <b>Lirael</b></div></footer>' +
-      '</div></body></html>';
+      '</div><script>function __swapTheme(){' +
+      'var r=document.documentElement;' +
+      'var t=r.getAttribute("data-theme")==="light"?"dark":"light";' +
+      'r.setAttribute("data-theme",t);' +
+      'var b=document.getElementById("thBtn");' +
+      'if(b){b.textContent=t==="light"?"\u2600\uFE0F 日间":"\uD83C\uDF19 夜间";}' +
+      'var m=document.querySelector("meta[name=theme-color]");' +
+      'if(m){m.setAttribute("content",t==="light"?"#0f766e":"#070c0a");}}' +
+      '<\/script></body></html>';
   }
 
   /* ---------------- 主流程 ---------------- */
@@ -392,6 +412,32 @@
     $('#btnClear').click();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+
+  /* ---------------- 日夜主题 ---------------- */
+  var THEME_KEY = 'wxfyq.theme';
+
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', t === 'light' ? '#4f46e5' : '#070c0a');
+    var ic = document.getElementById('themeIcon');
+    var tx = document.getElementById('themeTxt');
+    if (ic) ic.textContent = t === 'light' ? '☀️' : '🌙';
+    if (tx) tx.textContent = t === 'light' ? '日间' : '夜间';
+  }
+
+  (function () {
+    var t = 'dark';
+    try { t = localStorage.getItem(THEME_KEY) || 'dark'; } catch (e) {}
+    applyTheme(t);
+    var b = document.getElementById('btnTheme');
+    if (b) b.addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-theme') === 'light'
+        ? 'dark' : 'light';
+      applyTheme(next);
+      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+    });
+  })();
 
   /* ---------------- 彩蛋 ---------------- */
   var clicks = 0, timer = null;
