@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="author" content="Lirael">
 <meta name="theme-color" content="#070c0a">
-<meta name="description" content="上传英文文献 PDF，一键生成「中英对照 + 大白话解读」的离线 HTML 笔记">
+<meta name="description" content="上传英文文献 PDF，按 Keshav 三遍法选择阅读深度，一键生成速览卡 / 中英对照 / 复现分析 / 综述地图的离线 HTML 笔记">
 <title>文献翻译器 · 把英文论文变成看得懂的中文笔记</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23070c0a'/%3E%3Crect x='12' y='12' width='76' height='76' rx='16' fill='none' stroke='%2300ff9d' stroke-width='4' opacity='.55'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='%2300ff9d' font-family='sans-serif'%3EL%3C/text%3E%3C/svg%3E">
 <style>
@@ -164,6 +164,32 @@ html[data-theme="light"] .card{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 .btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;filter:none}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
+/* ---------- 阅读深度选项 ---------- */
+.passes{display:grid;gap:10px}
+.pass-opt{
+  display:block;position:relative;cursor:pointer;
+  border:1px solid var(--line);border-radius:12px;background:var(--card-solid);
+  padding:13px 15px 13px 44px;transition:.18s;
+}
+.pass-opt:hover{border-color:var(--brand);background:var(--brandsoft)}
+.pass-opt input{
+  position:absolute;left:16px;top:17px;width:16px;height:16px;
+  accent-color:var(--brand);cursor:pointer;margin:0;
+}
+.pass-opt.on{
+  border-color:var(--brand);background:var(--brandsoft);
+  box-shadow:0 0 0 3px var(--brandsoft),0 0 18px var(--halo);
+}
+.po-h{font-size:15px;font-weight:650;color:var(--ink);margin-bottom:4px}
+.po-t{
+  font-size:12px;font-weight:600;color:var(--brand);background:var(--brandsoft);
+  border:1px solid var(--line2);border-radius:999px;padding:1px 9px;margin-left:6px;
+}
+.po-s{font-size:13px;color:var(--ink2);line-height:1.7}
+.po-c{font-size:12px;color:var(--muted);margin-top:5px}
+html[data-theme=light] .pass-opt{background:#fbfcfe}
+html[data-theme=light] .pass-opt.on{background:var(--brandsoft)}
+
 /* ---------- 文件信息 ---------- */
 #fileBox{
   display:none;margin-top:14px;padding:13px 15px;border-radius:12px;
@@ -250,7 +276,7 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:26px;lin
     <div class="logo">📄</div>
     <div>
       <h1 id="title">文献翻译器</h1>
-      <p>上传一篇英文文献 PDF → 得到一份「英文原文 · 中文翻译 · 大白话解读」的离线笔记</p>
+      <p>上传英文文献 PDF，按「三遍法」选择深度 → 得到离线笔记：速览卡 / 中英对照 / 复现分析 / 综述地图</p>
     </div>
     <button class="theme-btn" id="btnTheme" title="切换日间 / 夜间">
       <span id="themeIcon">🌙</span><span id="themeTxt">夜间</span>
@@ -266,7 +292,8 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:26px;lin
     <div id="drop">
       <div class="ico">📥</div>
       <b>点这里选择文件，或把 PDF 拖进来</b>
-      <span>电脑、手机上下载的文献都行 · 扫描件（图片型 PDF）暂不支持</span>
+      <span id="dropSingle">电脑、手机上下载的文献都行 · 扫描件（图片型 PDF）暂不支持</span>
+      <span id="dropMulti" style="display:none">综述模式：一次可以选多篇，每篇只做「第一遍」扫描</span>
       <div style="margin-top:14px">
         <button class="btn btn-main" id="btnPick">📄 上传原文 PDF</button>
       </div>
@@ -280,9 +307,56 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:26px;lin
     <p class="hint">提示：手机上点「上传」后可以选择「浏览文件 / 最近下载」，直接选刚下的论文。</p>
   </div>
 
-  <!-- ② 设置 -->
+  <!-- ② 阅读深度 -->
   <div class="card">
-    <h2><span class="step">2</span>翻译设置<span class="badge">只存在你自己的浏览器里</span></h2>
+    <h2><span class="step">2</span>选择阅读深度<span class="badge">三遍法</span></h2>
+    <p class="hint" style="margin:0 0 14px">
+      出自 S. Keshav《How to Read a Paper》：读论文别从头读到尾，<b>分三遍，每遍任务不同</b>。
+      越往后越贵、越慢，所以先用便宜的那档把不值得读的筛掉。
+    </p>
+    <div class="passes">
+      <label class="pass-opt" data-pass="1">
+        <input type="radio" name="pass" value="1">
+        <div class="po-body">
+          <div class="po-h">🔍 第一遍 · 扫读 <span class="po-t">5–10 分钟</span></div>
+          <div class="po-s">只读标题、摘要、引言、小标题、结论 → 拿到「五个 C」速览卡，
+            并告诉你要不要继续读</div>
+          <div class="po-c">1 次调用 · 最便宜</div>
+        </div>
+      </label>
+      <label class="pass-opt" data-pass="2">
+        <input type="radio" name="pass" value="2" checked>
+        <div class="po-body">
+          <div class="po-h">📖 第二遍 · 读懂 <span class="po-t">约 1 小时</span></div>
+          <div class="po-s">全文逐段中英对照 + 大白话解读，跳过证明细节</div>
+          <div class="po-c">按页数计费 · 最常用</div>
+        </div>
+      </label>
+      <label class="pass-opt" data-pass="3">
+        <input type="radio" name="pass" value="3">
+        <div class="po-body">
+          <div class="po-h">🔬 第三遍 · 复现 <span class="po-t">数小时</span></div>
+          <div class="po-s">第二遍 + 「虚拟复现」：假设你是作者重做一遍，再和原文对照 →
+            找出隐含假设、缺失引用、实验漏洞</div>
+          <div class="po-c">全文 + 1 次深度分析</div>
+        </div>
+      </label>
+      <label class="pass-opt" data-pass="4">
+        <input type="radio" name="pass" value="4">
+        <div class="po-body">
+          <div class="po-h">🗺️ 批量综述 <span class="po-t">多篇</span></div>
+          <div class="po-s">一次上传多篇，每篇只做第一遍，再统计共同引用和高频作者 →
+            拼出领域地图 + 建议阅读顺序</div>
+          <div class="po-c">N 次 + 1 次汇总</div>
+        </div>
+      </label>
+    </div>
+    <p class="hint" id="passTip" style="margin-top:12px"></p>
+  </div>
+
+  <!-- ③ 设置 -->
+  <div class="card">
+    <h2><span class="step">3</span>翻译设置<span class="badge">只存在你自己的浏览器里</span></h2>
     <details class="set" open>
       <summary>接口与模型</summary>
       <div class="body">
@@ -316,9 +390,9 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:26px;lin
     </details>
   </div>
 
-  <!-- ③ 开跑 -->
+  <!-- ④ 开跑 -->
   <div class="card">
-    <h2><span class="step">3</span>开始翻译</h2>
+    <h2><span class="step">4</span>开始</h2>
     <div class="row">
       <button class="btn btn-run" id="btnRun" disabled>🚀 启动翻译</button>
       <button class="btn btn-ghost" id="btnStop" disabled>停止</button>
@@ -343,8 +417,25 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:26px;lin
   <!-- 说明 -->
   <div class="card faq">
     <h2><span class="step">?</span>常见问题</h2>
+    <details><summary>「阅读深度」四档该怎么选？</summary>
+      <p>直接照 Keshav 的三遍法用：<b>第一篇先选「扫读」</b>，5 分钟拿到速览卡，看它建议继续读还是可以放下；
+      值得读的再选<b>「读懂」</b>做全文对照；只有你要审这篇稿、要复现它、或要在它基础上做下去时，
+      才需要<b>「复现」</b>那档。一次性面对一堆陌生论文时，用<b>「批量综述」</b>。</p></details>
+    <details><summary>「五个 C」是什么？</summary>
+      <p>第一遍读完你必须能回答的 5 个问题：Category 类型、Context 背景、Correctness 正确性、
+      Contributions 贡献、Clarity 清晰度。答不上来就说明这篇还没扫到位。</p></details>
+    <details><summary>「虚拟复现」听起来很玄，到底做了什么？</summary>
+      <p>就是让模型假设自己是作者，在同样的前提下把这项工作重新设计一遍，再和原文对照：
+      他做到而你没想到的 = 真正的创新；你想到而他没做的 = 缺漏；
+      你们都默认了却都没写出来的 = 隐含假设。另外还会列出可能缺失的引用、
+      实验方法上的问题（比如没有误差棒），以及能想到的后续方向。</p></details>
+    <details><summary>批量综述要怎么用？</summary>
+      <p>选「批量综述」后可以一次选多篇 PDF。每篇只做第一遍（省钱），
+      然后统计<b>共同被引用</b>的文献和<b>高频作者</b>——按原文第 3 节的说法，
+      这些就是这个领域的关键论文和关键人物——最后给你一张领域地图和建议阅读顺序。</p></details>
     <details><summary>翻译一篇要多久？</summary>
-      <p>一般 1–3 分钟。论文会切成小段一段段翻，页面上有实时进度，中途关掉浏览器才会中断。</p></details>
+      <p>扫读只要几秒；「读懂」一般 1–3 分钟（论文会切成小段一段段翻，页面上有实时进度）；
+      「复现」再多一次分析调用。中途关掉浏览器才会中断。</p></details>
     <details><summary>我的 API Key 安全吗？</summary>
       <p>Key 只保存在你自己浏览器的 localStorage 里，直接发给你选的那家服务商，不经过任何中间服务器。不放心可以翻完去浏览器设置里清掉网站数据。</p></details>
     <details><summary>为什么提示「接口连不上」？</summary>
@@ -352,7 +443,9 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:26px;lin
     <details><summary>扫描版 PDF（图片）能翻吗？</summary>
       <p>不能。这个页面只提取 PDF 里的文字层，需要原文是可选中文字的电子版。扫描件请先用 OCR 工具转一遍。</p></details>
     <details><summary>生成的文件是什么？</summary>
-      <p>一个单独的 HTML 文件，双击就能打开，不用联网。里面有「隐藏英文」按钮和日夜切换，还有每一段的💡大白话解释。</p></details>
+      <p>一个单独的 HTML 文件，双击就能打开，不用联网。里面有「隐藏英文」按钮和日夜切换；
+      选「读懂 / 复现」时每段都带 💡大白话解释，选「扫读」时是一张速览卡，
+      选「批量综述」时是一张领域地图。</p></details>
   </div>
 
   <footer>
